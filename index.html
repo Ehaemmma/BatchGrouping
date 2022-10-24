@@ -2,32 +2,227 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Test</title>
+    <title>Batch Grouping Tool</title>
 </head>
-<body>
-<button style = "" id=submitGrouping type="button" onclick="sendRequest()">
-    Hit!
-</button>
-<script>
-    let headers = new Headers();
-    headers.append('Authorization', 'Basic ' + btoa("admin:X!G_Adm1n"));
-    //headers.append('Access-Control-Allow-Origin','http://10.10.209.163:8080');
-    headers.append("Content-Type", "application/json");
-    headers.append("Origin", "null");
-    async function sendRequest(){
-        const response = await fetch("http://10.10.209.163:8000/device/addtogroup/SAAM/10715/1", {
-            method: "POST",
-            headers: headers,
-        })
-        if (response.ok) { // if HTTP-status is 200-299
-  // get the response body (the method explained below)
-            let json = await response.json().result;
-            document.getElementById("aa").innerHTML += json;
-        } else {
-          alert("HTTP-Error: " + response.status);
-        }
+<style>
+  body {
+      margin-top: 100px;
+    background-color: #AECEEB;
+    margin-left: 200px;
+    font-family: Garamond, Helvetica, serif;
+  }
+  form {
+      line-height: 500%;
+  }
+  div {
+      margin-bottom: 30px;
+  }
+  span {
+      padding-left: 30px;
+      font-size: 28px;
+      font-weight: bolder;
+  }
+  select {
+      font-family: Garamond, Helvetica, serif;
+      font-size: 24px;
+  }
+  input {
+      font-family: Garamond, Helvetica, serif;
+      font-size: 24px;
+  }
+  button {
+      font-family: Garamond, Helvetica, serif;
+      font-size: 24px;
+  }
+  label {
+      font-size: 24px;
+      padding-right: 20px;
+  }
+  table {}
+  .styled-table {
+        border-collapse: collapse;
+        margin: 25px 0;
+        font-size: 18px;
+        font-family: sans-serif;
+        width: 1000px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
     }
-</script>
-<p id="aa"></p>
+</style>
+<body>
+    <h1> SAAM Grouping Tool</h1>
+    <form id="csvForm">
+        <input type="file" id="csvFile" accept=".csv" />
+        <br />
+    </form>
+    <div>
+        <label for="gatewayNum">Gateway Number: </label>
+        <input type="text" id="gatewayNum" value='10.10.209.' size="30" onchange="">
+    </div>
+
+
+    <label for="functionality"></label>
+    <select style="color: black" id="functionality" onchange="changeFunction()">
+      <option value="append">Append</option>
+      <option value="replace" selected>Replace</option>
+      <option value="clear">Clear</option>
+    </select>
+    <span class="space"></span>
+    <label for="groupNum"></label>
+    <input type="text" id="groupNum" placeholder='Group Numbers (Separate with ",")' size="45" onchange="">
+    <button style = "" id=submitGrouping type="button" onclick="sendRequest()">
+      Update Group
+    </button>
+    <span id="countFix"></span>
+    <table id="fixtureTable" class="styled-table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Map</th>
+            <th>Purpose</th>
+            <th>Response</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+    <script>
+        function Fixture(id, map, purpose) {
+            this.id = id;
+            this.map = map;
+            this. purpose = purpose;
+        }
+        let data = [];
+        let count = 0;
+        const table = document.getElementById("fixtureTable");
+        window.onload = () => {
+              let picker = document.getElementById("csvFile");
+              picker.onchange = () => {
+                  let selected = picker.files[0];
+                  let reader = new FileReader();
+                  reader.addEventListener("loadend", () => {
+                  let temp = reader.result.split("\r\n");
+                  for (let i in temp) {
+                    temp[i] = temp[i].split(",");
+                  }
+                  for (let j=1; j<temp.length; j++) {
+                      if (temp[j][0]==="") break;
+                      data.push(new Fixture(temp[j][0],temp[j][3],temp[j][5]));
+                      let row = table.insertRow(j);
+                      let cell_id = row.insertCell(0);
+                      let cell_map = row.insertCell(1);
+                      let cell_purpose = row.insertCell(2);
+                      let cell_status = row.insertCell(3);
+                      cell_id.innerHTML = data[j-1].id;
+                      cell_map.innerHTML = data[j-1].map;
+                      cell_purpose.innerHTML = data[j-1].purpose;
+                      cell_status.innerHTML = "";
+                      count++;
+                      // document.getElementById("aa").innerHTML += data[j-1].map + "\n";
+                  }
+                  document.getElementById("countFix").innerHTML = "COUNT: " + count;
+                  picker.value = "";
+                });
+                reader.readAsText(selected);
+              };
+            };
+        function changeFunction() {
+            switch(document.getElementById("functionality").value) {
+              case "append":
+                document.getElementById("groupNum").style.visibility = "visible";
+                document.getElementById("groupNum").placeholder = "Group Number (One group at a time)";
+                break;
+              case "replace":
+                document.getElementById("groupNum").style.visibility = "visible";
+                document.getElementById("groupNum").placeholder = 'Group Numbers (Separate with ",")';
+                break;
+              default:
+                document.getElementById("groupNum").style.visibility = "hidden";
+            }
+        }
+        async function sendRequest() {
+            let address = "http://" + document.getElementById("gatewayNum").value + ":8000/device/";
+            let status = "OK";
+            let headers = new Headers();
+            headers.append('Authorization', 'Basic ' + btoa("admin:X!G_Adm1n"));
+            headers.append("Content-Type", "application/json");
+            switch(document.getElementById("functionality").value) {
+              case "append":
+                address += "addtogroup/SAAM/";
+                for (let j=0; j<count; j++){
+                    const groupNumber = Number(document.getElementById("groupNum").value) + 49152;
+                    let fullAddress = address + data[j].id + "/" + groupNumber;
+                    document.getElementById("aa").innerHTML += fullAddress + "\n";
+                    const response = await fetch(fullAddress, {
+                        method: "POST",
+                        headers: headers,
+                    })
+                    let result = "Pending";
+                    if (response.ok) {
+                        let json = await response.json();
+                        result = json.result;
+                    }
+                    else {
+                        result = response.statusText;
+                    }
+                    document.getElementById("fixtureTable").rows[j+1].cells[3].innerHTML = result;
+                    if (result === "true") document.getElementById("fixtureTable").rows[j+1].cells[3].style.color = "green";
+                    else document.getElementById("fixtureTable").rows[j+1].cells[3].style.color = "red";
+                }
+                break;
+              case "replace":
+                address += "setgroups/SAAM/";
+                for (let j=0; j<count; j++) {
+                    let fullAddress = address + data[j].id;
+                    document.getElementById("aa").innerHTML += fullAddress + "\n";
+                    const response = await fetch(fullAddress, {
+                        method: "POST",
+                        body: "[" + document.getElementById("groupNum").value + "]",
+                        headers: headers,
+                    })
+                    let result = "Pending";
+                    if (response.ok) {
+                        let json = await response.json();
+                        result = json.result;
+                    }
+                    else {
+                        result = response.statusText;
+                    }
+                    document.getElementById("fixtureTable").rows[j+1].cells[3].innerHTML = result;
+                    if (result === "true") document.getElementById("fixtureTable").rows[j+1].cells[3].style.color = "green";
+                    else document.getElementById("fixtureTable").rows[j+1].cells[3].style.color = "red";
+                }
+                break;
+              default:
+                address += "setgroups/SAAM/";
+                for (let j=0; j<count; j++) {
+                    let fullAddress = address + data[j].id;
+                    document.getElementById("aa").innerHTML += fullAddress + "\n";
+                    const response = await fetch(fullAddress, {
+                        method: "POST",
+                        body: "",
+                        headers: headers,
+                    })
+                    let result = "Pending";
+                    if (response.ok) {
+                        let json = await response.json();
+                        result = json.result;
+                    }
+                    else {
+                        result = response.statusText;
+                    }
+                    document.getElementById("fixtureTable").rows[j+1].cells[3].innerHTML = result;
+                    if (result === "true") document.getElementById("fixtureTable").rows[j+1].cells[3].style.color = "green";
+                    else document.getElementById("fixtureTable").rows[j+1].cells[3].style.color = "red";
+                }
+            }
+        }
+    </script>
+
+    <p id="aa">
+
+    </p>
+
+
 </body>
+
 </html>
