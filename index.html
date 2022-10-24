@@ -19,9 +19,7 @@
             method: "POST",
             headers: headers,
         })
-        let status = response.statusText;
-        document.getElementById("aa").innerHTML = status;
-        status = response.json();
+        const status = response.statusText;
         document.getElementById("aa").innerHTML = status;
     }
 </script>
