@@ -7,9 +7,9 @@
 <style>
   body {
       margin-top: 100px;
-    background-color: #AECEEB;
-    margin-left: 200px;
-    font-family: Garamond, Helvetica, serif;
+      background-color: #AECEEB;
+      margin-left: 200px;
+      font-family: Garamond, Helvetica, serif;
   }
   form {
       line-height: 500%;
@@ -47,6 +47,12 @@
         width: 1000px;
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
     }
+  hr.rounded {
+      margin-top: 40px;
+      margin-right: 180px;
+    border-top: 8px solid #89AADD;
+    border-radius: 5px;
+  }
 </style>
 <body>
     <h1> SAAM Grouping Tool</h1>
@@ -61,17 +67,37 @@
 
     <label for="functionality"></label>
     <select style="color: black" id="functionality" onchange="changeFunction()">
-      <option value="append">Append</option>
-      <option value="replace" selected>Replace</option>
+      <option value="append" selected>Append</option>
+      <option value="replace">Replace</option>
       <option value="clear">Clear</option>
     </select>
     <span class="space"></span>
     <label for="groupNum"></label>
     <input type="text" id="groupNum" placeholder='Group Numbers (Separate with ",")' size="45" onchange="">
-    <button style = "" id=submitGrouping type="button" onclick="sendRequest()">
+    <button style = "" id="submitGrouping" type="button" onclick="sendRequest()">
       Update Group
     </button>
     <span id="countFix"></span>
+    <hr class="rounded">
+    <div style="padding-top: 10px">
+        <img
+          src="filter.svg"
+          width= "30"
+          alt=""
+        />
+        <label for="filter" style="color: #555555; font-size: 20px">Filter by purpose: </label>
+        <select style="color: #555555; font-size: 20px" id="filter" onchange="changeFilter()">
+            <option value="FLR" selected>FLR</option>
+            <option value="WWS">WWS</option>
+            <option value="OBJ">OBJ</option>
+            <option value="OTHER">other...</option>
+        </select>
+        <label for="otherFilter"></label>
+        <input style="visibility: hidden" type="text" id="otherFilter">
+        <button style = "color: #555555; font-size: 20px" id="applyFilter" type="button" onclick="addFilter()">
+            Apply
+        </button>
+    </div>
     <table id="fixtureTable" class="styled-table">
     <thead>
         <tr>
@@ -124,6 +150,19 @@
                 reader.readAsText(selected);
               };
             };
+        function addFilter() {
+            let purpose;
+            if (document.getElementById("filter").value === "OTHER") purpose = document.getElementById("otherFilter").value;
+            else purpose = purpose = document.getElementById("filter").value;
+            for (let j=0; j<count; j++){
+                if (data[j].purpose !== purpose) document.getElementById("fixtureTable").rows[j+1].style.visibility = "hidden";
+                else document.getElementById("fixtureTable").rows[j+1].style.visibility = "visible";
+            }
+        }
+        function changeFilter() {
+            if (document.getElementById("filter").value === "OTHER") document.getElementById("otherFilter").style.visibility = "visible";
+            else document.getElementById("otherFilter").style.visibility = "hidden";
+        }
         function changeFunction() {
             switch(document.getElementById("functionality").value) {
               case "append":
@@ -148,69 +187,72 @@
               case "append":
                 address += "addtogroup/SAAM/";
                 for (let j=0; j<count; j++){
-                    let fullAddress = address + data[j].id + "/" + document.getElementById("groupNum").value;
-                    document.getElementById("aa").innerHTML += fullAddress + "\n";
-                    const response = await fetch(fullAddress, {
-                        method: "POST",
-                        headers: headers,
-                    })
-                    let result = "Pending";
-                    if (response.ok) {
-                        let json = await response.json();
-                        result = json.result;
+                    if (document.getElementById("fixtureTable").rows[j+1].style.visibility === "visible") {
+                        let fullAddress = address + data[j].id + "/" + document.getElementById("groupNum").value;
+                        document.getElementById("aa").innerHTML += fullAddress + "\n";
+                        const response = await fetch(fullAddress, {
+                            method: "POST",
+                            headers: headers,
+                        })
+                        let result = "Pending";
+                        if (response.ok) {
+                            let json = await response.json();
+                            result = json.result;
+                        } else {
+                            result = response.statusText;
+                        }
+                        document.getElementById("fixtureTable").rows[j + 1].cells[3].innerHTML = result;
+                        if (result === true) document.getElementById("fixtureTable").rows[j + 1].cells[3].style.color = "green";
+                        else document.getElementById("fixtureTable").rows[j + 1].cells[3].style.color = "red";
                     }
-                    else {
-                        result = response.statusText;
-                    }
-                    document.getElementById("fixtureTable").rows[j+1].cells[3].innerHTML = result;
-                    if (result === true) document.getElementById("fixtureTable").rows[j+1].cells[3].style.color = "green";
-                    else document.getElementById("fixtureTable").rows[j+1].cells[3].style.color = "red";
                 }
                 break;
               case "replace":
                 address += "setgroups/SAAM/";
                 for (let j=0; j<count; j++) {
-                    let fullAddress = address + data[j].id;
-                    document.getElementById("aa").innerHTML += fullAddress + "\n";
-                    const response = await fetch(fullAddress, {
-                        method: "POST",
-                        body: "[" + document.getElementById("groupNum").value + "]",
-                        headers: headers,
-                    })
-                    let result = "Pending";
-                    if (response.ok) {
-                        let json = await response.json();
-                        result = json.result;
+                    if (document.getElementById("fixtureTable").rows[j + 1].style.visibility === "visible") {
+                        let fullAddress = address + data[j].id;
+                        document.getElementById("aa").innerHTML += fullAddress + "\n";
+                        const response = await fetch(fullAddress, {
+                            method: "POST",
+                            body: "[" + document.getElementById("groupNum").value + "]",
+                            headers: headers,
+                        })
+                        let result = "Pending";
+                        if (response.ok) {
+                            let json = await response.json();
+                            result = json.result;
+                        } else {
+                            result = response.statusText;
+                        }
+                        document.getElementById("fixtureTable").rows[j + 1].cells[3].innerHTML = result;
+                        if (result === true) document.getElementById("fixtureTable").rows[j + 1].cells[3].style.color = "green";
+                        else document.getElementById("fixtureTable").rows[j + 1].cells[3].style.color = "red";
                     }
-                    else {
-                        result = response.statusText;
-                    }
-                    document.getElementById("fixtureTable").rows[j+1].cells[3].innerHTML = result;
-                    if (result === true) document.getElementById("fixtureTable").rows[j+1].cells[3].style.color = "green";
-                    else document.getElementById("fixtureTable").rows[j+1].cells[3].style.color = "red";
                 }
                 break;
               default:
                 address += "setgroups/SAAM/";
                 for (let j=0; j<count; j++) {
-                    let fullAddress = address + data[j].id;
-                    document.getElementById("aa").innerHTML += fullAddress + "\n";
-                    const response = await fetch(fullAddress, {
-                        method: "POST",
-                        body: "[]",
-                        headers: headers,
-                    })
-                    let result = "Pending";
-                    if (response.ok) {
-                        let json = await response.json();
-                        result = json.result;
+                    if (document.getElementById("fixtureTable").rows[j + 1].style.visibility === "visible") {
+                        let fullAddress = address + data[j].id;
+                        document.getElementById("aa").innerHTML += fullAddress + "\n";
+                        const response = await fetch(fullAddress, {
+                            method: "POST",
+                            body: "[]",
+                            headers: headers,
+                        })
+                        let result = "Pending";
+                        if (response.ok) {
+                            let json = await response.json();
+                            result = json.result;
+                        } else {
+                            result = response.statusText;
+                        }
+                        document.getElementById("fixtureTable").rows[j + 1].cells[3].innerHTML = result;
+                        if (result === true) document.getElementById("fixtureTable").rows[j + 1].cells[3].style.color = "green";
+                        else document.getElementById("fixtureTable").rows[j + 1].cells[3].style.color = "red";
                     }
-                    else {
-                        result = response.statusText;
-                    }
-                    document.getElementById("fixtureTable").rows[j+1].cells[3].innerHTML = result;
-                    if (result === true) document.getElementById("fixtureTable").rows[j+1].cells[3].style.color = "green";
-                    else document.getElementById("fixtureTable").rows[j+1].cells[3].style.color = "red";
                 }
             }
         }
