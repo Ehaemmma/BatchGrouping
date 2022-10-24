@@ -152,7 +152,7 @@
                     const groupNumber = Number(document.getElementById("groupNum").value) + 49152;
                     let fullAddress = address + data[j].id + "/" + groupNumber;
                     document.getElementById("aa").innerHTML += fullAddress + "\n";
-                    const response = await fetch(address, {
+                    const response = await fetch(fullAddress, {
                         method: "POST",
                         headers: headers,
                     })
@@ -184,7 +184,7 @@
                 for (let j=0; j<count; j++) {
                     let fullAddress = address + data[j].id;
                     document.getElementById("aa").innerHTML += fullAddress + "\n";
-                    const response = await fetch(address, {
+                    const response = await fetch(fullAddress, {
                         method: "POST",
                         body: "",
                         headers: headers,
