@@ -59,7 +59,6 @@
         <input type="text" id="gatewayNum" value='10.10.209.' size="30" onchange="">
     </div>
 
-
     <label for="functionality"></label>
     <select style="color: black" id="functionality" onchange="changeFunction()">
       <option value="append">Append</option>
@@ -149,25 +148,22 @@
               case "append":
                 address += "addtogroup/SAAM/";
                 for (let j=0; j<count; j++){
-                    const groupNumber = Number(document.getElementById("groupNum").value) + 49152;
-                    let fullAddress = address + data[j].id + "/" + groupNumber;
+                    let fullAddress = address + data[j].id + "/" + document.getElementById("groupNum").value;
                     document.getElementById("aa").innerHTML += fullAddress + "\n";
                     const response = await fetch(fullAddress, {
                         method: "POST",
                         headers: headers,
                     })
-                    let resultStatus = false;
                     let result = "Pending";
                     if (response.ok) {
                         let json = await response.json();
-                        resultStatus = json.result;
-                        result = response.text();
+                        result = json.result;
                     }
                     else {
                         result = response.statusText;
                     }
                     document.getElementById("fixtureTable").rows[j+1].cells[3].innerHTML = result;
-                    if (resultStatus === true) document.getElementById("fixtureTable").rows[j+1].cells[3].style.color = "green";
+                    if (result === true) document.getElementById("fixtureTable").rows[j+1].cells[3].style.color = "green";
                     else document.getElementById("fixtureTable").rows[j+1].cells[3].style.color = "red";
                 }
                 break;
@@ -181,18 +177,16 @@
                         body: "[" + document.getElementById("groupNum").value + "]",
                         headers: headers,
                     })
-                    let resultStatus = false;
                     let result = "Pending";
                     if (response.ok) {
                         let json = await response.json();
-                        resultStatus = json.result;
-                        result = response.text();
+                        result = json.result;
                     }
                     else {
                         result = response.statusText;
                     }
                     document.getElementById("fixtureTable").rows[j+1].cells[3].innerHTML = result;
-                    if (resultStatus === true) document.getElementById("fixtureTable").rows[j+1].cells[3].style.color = "green";
+                    if (result === true) document.getElementById("fixtureTable").rows[j+1].cells[3].style.color = "green";
                     else document.getElementById("fixtureTable").rows[j+1].cells[3].style.color = "red";
                 }
                 break;
@@ -206,24 +200,27 @@
                         body: "[]",
                         headers: headers,
                     })
-                    let resultStatus = false;
                     let result = "Pending";
                     if (response.ok) {
                         let json = await response.json();
-                        resultStatus = json.result;
-                        result = response.text();
+                        result = json.result;
                     }
                     else {
                         result = response.statusText;
                     }
                     document.getElementById("fixtureTable").rows[j+1].cells[3].innerHTML = result;
-                    if (resultStatus === true) document.getElementById("fixtureTable").rows[j+1].cells[3].style.color = "green";
+                    if (result === true) document.getElementById("fixtureTable").rows[j+1].cells[3].style.color = "green";
                     else document.getElementById("fixtureTable").rows[j+1].cells[3].style.color = "red";
                 }
             }
         }
     </script>
+
     <p id="aa">
+
     </p>
+
+
 </body>
+
 </html>
