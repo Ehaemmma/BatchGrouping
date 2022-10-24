@@ -156,16 +156,18 @@
                         method: "POST",
                         headers: headers,
                     })
+                    let resultStatus = false;
                     let result = "Pending";
                     if (response.ok) {
                         let json = await response.json();
-                        result = json.result;
+                        resultStatus = json.result;
+                        result = response.text();
                     }
                     else {
                         result = response.statusText;
                     }
                     document.getElementById("fixtureTable").rows[j+1].cells[3].innerHTML = result;
-                    if (result === true) document.getElementById("fixtureTable").rows[j+1].cells[3].style.color = "green";
+                    if (resultStatus === true) document.getElementById("fixtureTable").rows[j+1].cells[3].style.color = "green";
                     else document.getElementById("fixtureTable").rows[j+1].cells[3].style.color = "red";
                 }
                 break;
@@ -179,16 +181,18 @@
                         body: "[" + document.getElementById("groupNum").value + "]",
                         headers: headers,
                     })
+                    let resultStatus = false;
                     let result = "Pending";
                     if (response.ok) {
                         let json = await response.json();
-                        result = json.result;
+                        resultStatus = json.result;
+                        result = response.text();
                     }
                     else {
                         result = response.statusText;
                     }
                     document.getElementById("fixtureTable").rows[j+1].cells[3].innerHTML = result;
-                    if (result === true) document.getElementById("fixtureTable").rows[j+1].cells[3].style.color = "green";
+                    if (resultStatus === true) document.getElementById("fixtureTable").rows[j+1].cells[3].style.color = "green";
                     else document.getElementById("fixtureTable").rows[j+1].cells[3].style.color = "red";
                 }
                 break;
@@ -202,27 +206,24 @@
                         body: "[]",
                         headers: headers,
                     })
+                    let resultStatus = false;
                     let result = "Pending";
                     if (response.ok) {
                         let json = await response.json();
-                        result = json.result;
+                        resultStatus = json.result;
+                        result = response.text();
                     }
                     else {
                         result = response.statusText;
                     }
                     document.getElementById("fixtureTable").rows[j+1].cells[3].innerHTML = result;
-                    if (result === true) document.getElementById("fixtureTable").rows[j+1].cells[3].style.color = "green";
+                    if (resultStatus === true) document.getElementById("fixtureTable").rows[j+1].cells[3].style.color = "green";
                     else document.getElementById("fixtureTable").rows[j+1].cells[3].style.color = "red";
                 }
             }
         }
     </script>
-
     <p id="aa">
-
     </p>
-
-
 </body>
-
 </html>
