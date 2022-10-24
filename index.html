@@ -199,7 +199,7 @@
                     document.getElementById("aa").innerHTML += fullAddress + "\n";
                     const response = await fetch(fullAddress, {
                         method: "POST",
-                        body: "",
+                        body: "[]",
                         headers: headers,
                     })
                     let result = "Pending";
