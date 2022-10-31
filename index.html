@@ -89,7 +89,6 @@
         <select style="color: #555555; font-size: 20px" id="filter" onchange="changeFilter()">
             <option value="FLR" selected>FLR</option>
             <option value="WWS">WWS</option>
-            <option value="WWS L">WWS L</option>
             <option value="OBJ">OBJ</option>
             <option value="OTHER">other...</option>
         </select>
@@ -179,9 +178,6 @@
             }
         }
         async function sendRequest() {
-            for (let j=0; j<count; j++) {
-                document.getElementById("fixtureTable").rows[j+1].cells[3].innerHTML = "";
-            }
             let address = "http://" + document.getElementById("gatewayNum").value + ":8000/device/";
             let status = "OK";
             let headers = new Headers();
