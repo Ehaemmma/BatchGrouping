@@ -193,7 +193,7 @@
                 document.getElementById("aa").innerHTML += "Test!!\n";
                 for (let j=0; j<count; j++){
                     document.getElementById("aa").innerHTML += "Hey\n";
-                    if (document.getElementById("fixtureTable").rows[j+1].style.visibility === "visible") {
+                    if (document.getElementById("fixtureTable").rows[j+1].style.visibility !== "hidden") {
                         let fullAddress = address + data[j].id + "/" + document.getElementById("groupNum").value;
                         document.getElementById("aa").innerHTML += fullAddress + "\n";
                         const response = await fetch(fullAddress, {
