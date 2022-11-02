@@ -190,9 +190,7 @@
             switch(document.getElementById("functionality").value) {
               case "append":
                 address += "addtogroup/SAAM/";
-                document.getElementById("aa").innerHTML += "Test!!\n";
                 for (let j=0; j<count; j++){
-                    document.getElementById("aa").innerHTML += "Hey\n";
                     if (document.getElementById("fixtureTable").rows[j+1].style.visibility !== "hidden") {
                         let fullAddress = address + data[j].id + "/" + document.getElementById("groupNum").value;
                         document.getElementById("aa").innerHTML += fullAddress + "\n";
@@ -211,13 +209,12 @@
                         if (result === true) document.getElementById("fixtureTable").rows[j + 1].cells[3].style.color = "green";
                         else document.getElementById("fixtureTable").rows[j + 1].cells[3].style.color = "red";
                     }
-                    else document.getElementById("aa").innerHTML += document.getElementById("fixtureTable").rows[j+1].style.visibility;
                 }
                 break;
               case "replace":
                 address += "setgroups/SAAM/";
                 for (let j=0; j<count; j++) {
-                    if (document.getElementById("fixtureTable").rows[j + 1].style.visibility === "visible") {
+                    if (document.getElementById("fixtureTable").rows[j + 1].style.visibility !== "hidden") {
                         let fullAddress = address + data[j].id;
                         document.getElementById("aa").innerHTML += fullAddress + "\n";
                         const response = await fetch(fullAddress, {
@@ -241,7 +238,7 @@
               default:
                 address += "setgroups/SAAM/";
                 for (let j=0; j<count; j++) {
-                    if (document.getElementById("fixtureTable").rows[j+1].style.visibility === "visible") {
+                    if (document.getElementById("fixtureTable").rows[j+1].style.visibility !== "hidden") {
                         let fullAddress = address + data[j].id;
                         document.getElementById("aa").innerHTML += fullAddress + "\n";
                         const response = await fetch(fullAddress, {
