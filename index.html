@@ -211,7 +211,7 @@
                         if (result === true) document.getElementById("fixtureTable").rows[j + 1].cells[3].style.color = "green";
                         else document.getElementById("fixtureTable").rows[j + 1].cells[3].style.color = "red";
                     }
-                    else document.getElementById("aa").innerHTML += "InVISIBLE!!\n";
+                    else document.getElementById("aa").innerHTML += document.getElementById("fixtureTable").rows[j+1].style.visibility;
                 }
                 break;
               case "replace":
@@ -241,7 +241,7 @@
               default:
                 address += "setgroups/SAAM/";
                 for (let j=0; j<count; j++) {
-                    if (document.getElementById("fixtureTable").rows[j + 1].style.visibility === "visible") {
+                    if (document.getElementById("fixtureTable").rows[j+1].style.visibility === "visible") {
                         let fullAddress = address + data[j].id;
                         document.getElementById("aa").innerHTML += fullAddress + "\n";
                         const response = await fetch(fullAddress, {
